@@ -9,11 +9,11 @@ class Snake:
         self.snk_id = snk_id
         self.body = set()  # type: Set[Coord]
         self.body.add(pos)
-        self.path = [pos, pos, pos]
+        self.path = [pos]
         self.head = pos
         self.brain = brain
         self.is_dead = False
-        self.life = 200
+        self.life = 100
         self.points = 0
         self.steps = 0
         self.fitness = 0
@@ -38,7 +38,7 @@ class Snake:
             self.life -= 1
             self.steps += 1
             action = self.brain.think(vision)
-            self.move(self.head + Coord.adjacency()[action])
+            return self.move(self.head + Coord.adjacency()[action])
 
     def grow(self):
         self.life += 100

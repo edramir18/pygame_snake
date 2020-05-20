@@ -6,16 +6,23 @@ from pygame.time import Clock
 from game import Game
 from game_view import GameView
 
+population = 500
+generations = 200
+fps = 60
+mutation = 0.10
+width = 20
+height = 40
+seed = 2020
+tile = 20
+
 
 def run():
-    population = 100
-    fps = 60
-    generations = 200
-    mutation = 0.05
     pg.init()
-    game = Game(47, 47, 1981, population, mutation)
-    view = GameView(game)
+    game = Game(width, height, seed, population, mutation)
+    view = GameView(game, tile)
     running = True
+    pause = False
+    playing = False
     clock = pg.time.Clock()  # type: Clock
     while running:
         clock.tick(fps)
@@ -25,23 +32,25 @@ def run():
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     running = False
-        game.run()
-        if game.current_id == population:
-            if game.generation == generations:
-                running = False
+                elif event.key == pg.K_SPACE:
+                    pause = not pause
+        if not pause:
+            game.run()
+            if game.current_id == population:
+                if game.generation == generations:
+                    running = False
+                else:
+                    print(f'Generation: {game.generation:5} '
+                          f'Fitness {game.best_fitness}')
+                    game.next_generation()
             else:
-                game.next_generation()
-        else:
-            view.update(game)
-            pg.display.flip()
+                view.update(game)
+                pg.display.flip()
     pg.quit()
 
 
 def offline():
-    population = 100
-    generations = 200
-    mutation = 0.15
-    game = Game(47, 47, 1981, population, mutation)
+    game = Game(width, height, seed, population, mutation)
     running = True
     while running:
         game.run()
@@ -49,6 +58,8 @@ def offline():
             if game.generation == generations:
                 running = False
             else:
+                print(f'Generation: {game.generation:5} '
+                      f'Fitness {game.best_fitness}')
                 game.next_generation()
     pg.quit()
 

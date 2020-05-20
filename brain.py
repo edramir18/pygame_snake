@@ -8,13 +8,13 @@ class Brain:
         self.hidden = 16
         self.outputs = 4
         if generation == 0:
-            self.syn0 = 2 * self.state.random((24, 16)) - 1  # type: np.ndarray
+            self.syn0 = 2 * self.state.random((24, 4)) - 1  # type: np.ndarray
             # self.syn1 = 2 * self.state.random((16, 16)) - 1  # type: np.ndarray
-            self.syn2 = 2 * self.state.random((16, 4)) - 1  # type: np.ndarray
+            # self.syn2 = 2 * self.state.random((16, 4)) - 1  # type: np.ndarray
         else:
-            self.syn0 = np.zeros((24, 16), dtype=float)
+            self.syn0 = np.zeros((24, 4), dtype=float)
             # self.syn1 = np.zeros((16, 16), dtype=float)
-            self.syn2 = np.zeros((16, 4), dtype=float)
+            # self.syn2 = np.zeros((16, 4), dtype=float)
         self.fitness = 0
         self.generation = generation
 
@@ -23,8 +23,8 @@ class Brain:
         np.reshape(l0, (1, -1))
         l1 = self.sigmoid(np.dot(l0, self.syn0))
         # l2 = self.sigmoid(np.dot(l1, self.syn1))
-        l3 = self.sigmoid(np.dot(l1, self.syn2))
-        idx, _ = max([(k, w) for k, w in enumerate(l3)], key=lambda x: x[1])
+        # l3 = self.sigmoid(np.dot(l2, self.syn2))
+        idx, _ = max([(k, w) for k, w in enumerate(l1)], key=lambda x: x[1])
         return idx
 
     @staticmethod

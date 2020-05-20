@@ -52,7 +52,7 @@ def find_route(start: Coord, end: Coord, grid: Grid):
             return current.get_path()
         for pos in grid.get_neighbourds(current_pos):
             cell = grid.get(pos)
-            if cell.is_wall() or cell.has_player:
+            if cell.is_wall() or cell.has_body:
                 continue
             node = Node(pos, end, current)
             if pos in lst_closed:

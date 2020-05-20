@@ -6,10 +6,10 @@ from snake import Snake
 
 
 class GameZone:
-    def __init__(self, width, height, tile, game):
-        self.width = width
-        self.height = height
-        self.canvas = pg.Surface((width, height))
+    def __init__(self, game: Game, tile: int):
+        self.width = game.grid.width * tile
+        self.height = game.grid.height * tile
+        self.canvas = pg.Surface((self.width, self.height))
         self.tile = tile
         self.half = tile // 2
         self.snake = int(tile * 0.8)
@@ -25,6 +25,15 @@ class GameZone:
 
     def update(self, game: Game):
         self.canvas.fill(self.background)
+        # for pos, cell in game.grid.cells.items():
+        #     x, y = (pos * self.tile).get()
+        #     if cell.has_body:
+        #         color = GameColor.WHITE.value
+        #     elif cell.has_cherry:
+        #         color = GameColor.CYAN.value
+        #     else:
+        #         color = self.wall_color
+        #     pg.draw.rect(self.canvas, color, (x, y, self.tile, self.tile), 0)
         pos = game.cherry * self.tile + self.half
         pg.draw.circle(self.canvas, self.cherry_color, pos.get(),
                        self.cherry, 0)
@@ -43,32 +52,32 @@ class GameZone:
 
 
 class GameView:
-    def __init__(self, game: Game):
-        self.width = 740
-        self.height = 490
+    def __init__(self, game: Game, tile: int):
+        self.zone = GameZone(game, tile)
+        self.width = 130 + self.zone.width
+        self.height = 20 + self.zone.height
         self.window = pg.display.set_mode((self.width, self.height))
-        self.font = pg.font.SysFont(None, 30)
+        self.font = pg.font.SysFont(None, 24)
         self.font_color = GameColor.WHITE.value
         self.background = GameColor.BLUE.value
-        self.zone = GameZone(470, 470, 10, game)
         self.window.fill(self.background)
-        snake = self.get_text('SNAKE')
-        self.window.blit(snake, (495, 10))
-        generation = self.get_text('Generation')
-        self.window.blit(generation, (495, 70))
+        _, snake = self.get_text('SNAKE')
+        self.window.blit(snake, (20 + self.zone.width, 10))
+        _, generation = self.get_text('Generation')
+        self.window.blit(generation, (20 + self.zone.width, 70))
         self.update(game)
 
     def get_text(self, text):
-        return self.font.render(text, True, self.font_color, self.background)
+        size = self.font.size(text)
+        img = self.font.render(text, True, self.font_color, self.background)
+        return size, img
 
     def update(self, game: Game):
         self.zone.update(game)
-        self.window.blit(self.zone.canvas, (15, 10))
-        self.window.fill(self.background, (495, 40, 230, 30))
-        w, _ = self.font.size(str(game.points))
-        text = self.get_text(str(game.points))
-        self.window.blit(text, (725 - w, 40))
-        self.window.fill(self.background, (495, 100, 230, 30))
-        w, _ = self.font.size(str(game.generation))
-        text = self.get_text(str(game.generation))
-        self.window.blit(text, (725 - w, 100))
+        self.window.blit(self.zone.canvas, (10, 10))
+        self.window.fill(self.background, (20 + self.width, 40, 100, 30))
+        (w, _), text = self.get_text(str(game.points))
+        self.window.blit(text, (self.width - 10 - w, 40))
+        self.window.fill(self.background, (20 + self.width, 100, 100, 30))
+        (w, _), text = self.get_text(str(game.generation))
+        self.window.blit(text, (self.width - 10 -w, 100))

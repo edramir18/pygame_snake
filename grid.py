@@ -42,16 +42,16 @@ class Grid:
             while True:
                 last = last + adj
                 if last not in self.cells or self.cells[last].is_wall():
-                    # vision += [1 / pos.manhattan_to(last), 0, 0]
-                    vision += [1, 0, 0]
+                    vision += [1 / pos.manhattan_to(last), 0, 0]
+                    # vision += [1, 0, 0]
                     break
-                elif self.cells[last].has_player:
-                    # vision += [0, 1 / pos.manhattan_to(last), 0]
-                    vision += [0, 1, 0]
+                elif self.cells[last].has_body:
+                    vision += [0, 1 / pos.manhattan_to(last), 0]
+                    # vision += [0, 1, 0]
                     break
                 elif self.cells[last].has_cherry:
-                    # vision += [0, 0, 1 / pos.manhattan_to(last)]
-                    vision += [0, 0, 1]
+                    vision += [0, 0, 1 / pos.manhattan_to(last)]
+                    # vision += [0, 0, 1]
                     break
         return vision
 

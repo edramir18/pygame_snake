@@ -15,8 +15,7 @@ class Cell:
     def __init__(self):
         self.celltype = Cell.CellType.WALL
         self.has_cherry = False
-        self.has_pellet = False
-        self.has_player = False
+        self.has_body = False
 
     def __str__(self):
         return str(self.celltype)
@@ -33,4 +32,4 @@ class Cell:
     def is_empty(self):
         if self.celltype == Cell.CellType.WALL:
             return False
-        return not (self.has_pellet or self.has_cherry or self.has_player)
+        return not (self.has_cherry or self.has_body)
