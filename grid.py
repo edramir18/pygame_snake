@@ -1,5 +1,5 @@
 from random import Random
-from typing import Set, Dict
+from typing import Set, Dict, List
 
 from cell import Cell
 from coord import Coord
@@ -34,6 +34,26 @@ class Grid:
     def get_neighbourds(self, coord):
         return [coord + adj for adj in Coord.adjacency()
                 if coord + adj in self.cells]
+
+    def get_vision(self, pos: Coord):
+        vision = list()  # type: List[int]
+        for adj in Coord.adjacency(True):
+            last = pos
+            while True:
+                last = last + adj
+                if last not in self.cells or self.cells[last].is_wall():
+                    # vision += [1 / pos.manhattan_to(last), 0, 0]
+                    vision += [1, 0, 0]
+                    break
+                elif self.cells[last].has_player:
+                    # vision += [0, 1 / pos.manhattan_to(last), 0]
+                    vision += [0, 1, 0]
+                    break
+                elif self.cells[last].has_cherry:
+                    # vision += [0, 0, 1 / pos.manhattan_to(last)]
+                    vision += [0, 0, 1]
+                    break
+        return vision
 
     def build_walls(self, rand: Random):
         for cell in self.cells.values():

@@ -99,5 +99,8 @@ class Coord:
             raise ValueError
 
     @staticmethod
-    def adjacency():
-        return [Coord(-1, 0), Coord(1, 0), Coord(0, -1), Coord(0, 1)]
+    def adjacency(eight=False):
+        adj = [Coord(-1, 0), Coord(1, 0), Coord(0, -1), Coord(0, 1)]
+        if eight:
+            adj += [Coord(-1, -1), Coord(1, 1), Coord(1, -1), Coord(-1, 1)]
+        return adj

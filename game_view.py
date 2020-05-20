@@ -2,6 +2,7 @@ import pygame as pg
 
 from game import Game
 from game_color import GameColor
+from snake import Snake
 
 
 class GameZone:
@@ -33,7 +34,8 @@ class GameZone:
             x, y = (coord * self.tile + self.m_wall).get()
             pg.draw.rect(self.canvas, self.wall_color,
                          (x, y, self.wall, self.wall), 0)
-        for pos in game.snake.body:
+        snake = game.snakes[game.current_id]  # type: Snake
+        for pos in snake.body:
             body = pos * self.tile + self.m_snake
             x, y = body.get()
             rect = (x, y, self.snake, self.snake)
@@ -49,9 +51,11 @@ class GameView:
         self.font_color = GameColor.WHITE.value
         self.background = GameColor.BLUE.value
         self.zone = GameZone(470, 470, 10, game)
-        snake = self.get_text('SNAKE')
         self.window.fill(self.background)
+        snake = self.get_text('SNAKE')
         self.window.blit(snake, (495, 10))
+        generation = self.get_text('Generation')
+        self.window.blit(generation, (495, 70))
         self.update(game)
 
     def get_text(self, text):
@@ -60,7 +64,11 @@ class GameView:
     def update(self, game: Game):
         self.zone.update(game)
         self.window.blit(self.zone.canvas, (15, 10))
-        self.window.fill(self.background, (495, 40, 230, 40))
+        self.window.fill(self.background, (495, 40, 230, 30))
         w, _ = self.font.size(str(game.points))
         text = self.get_text(str(game.points))
         self.window.blit(text, (725 - w, 40))
+        self.window.fill(self.background, (495, 100, 230, 30))
+        w, _ = self.font.size(str(game.generation))
+        text = self.get_text(str(game.generation))
+        self.window.blit(text, (725 - w, 100))
