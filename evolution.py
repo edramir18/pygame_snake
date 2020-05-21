@@ -44,9 +44,11 @@ class Evolution:
             cross1 = np.random.choice(a, l1, p=p)
             cross2 = np.random.choice(a, l2, p=p)
             offspring = Brain(self.seed * self.population + i, self.generation)
-            offspring.syn0 = np.where(cross0, p1.syn0, p2.syn0)
+            # offspring.syn0 = np.where(cross0, p1.syn0, p2.syn0)
+            offspring.syn0 = np.array(p1.syn0)
             offspring.syn1 = np.where(cross1, p1.syn1, p2.syn1)
-            offspring.syn2 = np.where(cross2, p1.syn2, p2.syn2)
+            # offspring.syn2 = np.where(cross2, p1.syn2, p2.syn2)
+            offspring.syn2 = np.array(p2.syn2)
             self.offsprings.append(offspring)
 
     def mutation(self):

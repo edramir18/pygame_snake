@@ -84,17 +84,22 @@ class Snake:
                 f'Score: {self.fitness:10.4f} ')
 
     def save(self):
-        filename = f'data/{self.brain.generation}/snake_{self.snk_id}.json'
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, 'w') as outfile:
+        basename = f'data/{self.brain.generation}/snake_{self.snk_id}'
+        jsonfile = f'{basename}.json'
+        os.makedirs(os.path.dirname(jsonfile), exist_ok=True)
+        with open(jsonfile, 'w') as outfile:
             data = {
                 'snk_id': self.snk_id,
                 'fitness': int(self.fitness),
                 'steps': int(self.steps),
                 'points': int(self.points),
                 'generation': self.brain.generation,
-                'seed'
-                'l0': self.brain.syn0.tolist(),
-                'l1': self.brain.syn1.tolist()
+                'seed': self.brain.seed,
             }
             json.dump(data, outfile)
+        try:
+            np.savez_compressed(f'{basename}_syn0.npz', self.brain.syn0)
+            np.savez_compressed(f'{basename}_syn1.npz', self.brain.syn1)
+            np.savez_compressed(f'{basename}_syn2.npz', self.brain.syn2)
+        except FileNotFoundError as err:
+            print(err)

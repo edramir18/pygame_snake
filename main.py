@@ -1,4 +1,5 @@
 import random
+import sys
 
 import pygame as pg
 from pygame.time import Clock
@@ -6,15 +7,15 @@ from pygame.time import Clock
 from game import Game
 from game_view import GameView
 
-population = 1000
+population = 2000
+top = 10
 generations = 200
-fps = 60
+fps = 24
 mutation = 0.10
 width = 40
 height = 40
 seed = 2040
 tile = 10
-top = 3
 
 
 def run():
@@ -66,6 +67,47 @@ def offline():
     pg.quit()
 
 
+def play():
+    pg.init()
+    game = Game(width, height, seed, population, mutation)
+    view = GameView(game, tile)
+    running = True
+    pause = False
+    clock = pg.time.Clock()  # type: Clock
+    while running:
+        clock.tick(fps)
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    running = False
+                elif event.key == pg.K_SPACE:
+                    pause = not pause
+        if not pause:
+            if game.current_id == population:
+                if game.generation == generations:
+                    running = False
+                else:
+                    print(f'Generation: {game.generation:5} '
+                          f'Fitness {game.best_fitness}')
+                    game.next_generation()
+            elif game.current_id < top:
+                game.run()
+                view.update(game)
+                pg.display.flip()
+            else:
+                while game.current_id < population:
+                    game.run()
+    pg.quit()
+
+
 if __name__ == '__main__':
-    # offline()
-    run()
+    n_args = len(sys.argv)
+    if n_args == 1:
+        offline()
+    elif n_args == 2:
+        if sys.argv[1] == '--play':
+            play()
+        elif sys.argv[1] == '--run':
+            run()

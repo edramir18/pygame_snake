@@ -6,6 +6,7 @@ import numpy as np
 class Brain:
     def __init__(self, seed, generation: int):
         self.state = np.random.RandomState(seed)
+        self.seed = seed
         self.inputs = (28,29)
         self.hidden = (12, 29)
         self.outputs = (4, 13)
@@ -23,7 +24,7 @@ class Brain:
     def think(self, vision: List[float], direction: List[int]):
         one = np.ones((1, 1))
         l0 = np.array(vision)
-        l0 = self.sigmoid(l0)
+        l0 = self.tanh(l0)
         l0 = np.concatenate((l0, np.array(direction)))
         l0 = l0.reshape((-1, 1))
         l0 = np.concatenate((l0, one))
@@ -38,3 +39,7 @@ class Brain:
     @staticmethod
     def sigmoid(x):
         return 1 / (1 + np.exp(-x))
+
+    @staticmethod
+    def tanh(x):
+        return (2 / (1 + np.exp(-2 * x))) - 1
