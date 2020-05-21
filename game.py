@@ -6,6 +6,7 @@ from coord import Coord
 from evolution import Evolution
 from grid import Grid
 from snake import Snake
+import numpy as np
 from node import find_route
 
 
@@ -19,8 +20,7 @@ class Game:
         self.best_fitness = 0
         self.avg_fitness = 0
         self.seed = seed
-        self.random = random.Random()
-        self.random.seed(seed)
+        self.random = np.random.default_rng(seed)
         self.grid = Grid(width, height)
         # self.grid.build_walls(self.random)
         self.cherry = self.grid.get_next_cherry(self.random)
@@ -71,7 +71,7 @@ class Game:
         self.grid.get(self.cherry).has_cherry = True
 
     def reset_game(self):
-        self.random.seed(self.seed)
+        # self.random = np.random.default_rng(self.seed)
         self.points = 0
         self.grid = Grid(self.grid.width, self.grid.height)
         # self.grid.build_walls(self.random)

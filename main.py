@@ -7,15 +7,15 @@ from pygame.time import Clock
 from game import Game
 from game_view import GameView
 
-population = 2000
+population = 5000
 top = 10
 generations = 200
 fps = 24
 mutation = 0.10
-width = 40
-height = 40
-seed = 2040
-tile = 10
+width = 10
+height = 15
+seed = 1981
+tile = 40
 
 
 def run():
