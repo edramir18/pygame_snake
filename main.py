@@ -6,13 +6,13 @@ from pygame.time import Clock
 from game import Game
 from game_view import GameView
 
-population = 10
+population = 1000
 generations = 200
 fps = 60
-mutation = 0.05
+mutation = 0.10
 width = 40
 height = 40
-seed = 1981
+seed = 2040
 tile = 10
 top = 3
 
@@ -23,7 +23,6 @@ def run():
     view = GameView(game, tile)
     running = True
     pause = False
-    playing = False
     clock = pg.time.Clock()  # type: Clock
     while running:
         clock.tick(fps)

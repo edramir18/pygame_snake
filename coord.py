@@ -100,7 +100,7 @@ class Coord:
 
     @staticmethod
     def adjacency(eight=False):
-        adj = [Coord(-1, 0), Coord(1, 0), Coord(0, -1), Coord(0, 1)]
+        adj = [Coord(0, -1), Coord(1, 0), Coord(0, 1), Coord(-1, 0)]
         if eight:
-            adj += [Coord(-1, -1), Coord(1, 1), Coord(1, -1), Coord(-1, 1)]
+            adj += [Coord(1, 1), Coord(1, -1), Coord(-1, -1), Coord(-1, 1)]
         return adj
