@@ -7,13 +7,13 @@ from pygame.time import Clock
 from game import Game
 from game_view import GameView
 
-population = 5000
+population = 50
 top = 10
 generations = 200
-fps = 24
+fps = 6
 mutation = 0.10
 width = 10
-height = 15
+height = 10
 seed = 1981
 tile = 40
 
@@ -61,7 +61,7 @@ def offline():
             else:
                 print(f'Generation: {game.generation:5} '
                       f'Fitness {game.best_fitness}')
-                for i in range(top):
+                for i in range(population):
                     game.snakes[i].save()
                 game.next_generation()
     pg.quit()
@@ -94,8 +94,9 @@ def play():
                     game.next_generation()
             elif game.current_id < top:
                 game.run()
-                view.update(game)
-                pg.display.flip()
+                if game.current_id < population:
+                    view.update(game)
+                    pg.display.flip()
             else:
                 while game.current_id < population:
                     game.run()

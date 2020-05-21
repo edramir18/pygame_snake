@@ -72,9 +72,9 @@ class Snake:
         self.path.append(self.path[-1])
 
     def calculate_fitness(self):
-        # fitness = self.steps + (np.power(2, self.points) + 500 * self.points)
-        # fitness -= 0.25 * np.power(self.steps, 1.3) * np.power(self.points, 1.2)
-        fitness = self.steps * self.steps * np.power(2, self.points)
+        fitness = self.steps + (np.power(2, self.points) + 500 * self.points)
+        fitness -= 0.25 * np.power(self.steps, 1.3) * np.power(self.points, 1.2)
+        # fitness = self.steps * self.steps * np.power(2, self.points)
         self.fitness = fitness
         self.brain.fitness = fitness
 
@@ -100,6 +100,5 @@ class Snake:
         try:
             np.savez_compressed(f'{basename}_syn0.npz', self.brain.syn0)
             np.savez_compressed(f'{basename}_syn1.npz', self.brain.syn1)
-            np.savez_compressed(f'{basename}_syn2.npz', self.brain.syn2)
         except FileNotFoundError as err:
             print(err)

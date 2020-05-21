@@ -1,6 +1,7 @@
 from random import Random
 from typing import Set, Dict, List
 
+
 from cell import Cell
 from coord import Coord
 
@@ -25,7 +26,7 @@ class Grid:
     def get_free_cells(self):
         return [coord for coord, cell in self.cells.items() if cell.is_empty()]
 
-    def get_next_cherry(self, rand: Random):
+    def get_next_cherry(self, rand):
         free_cells = self.get_free_cells()
         pos = rand.choice(free_cells)
         self.cells[pos].has_cherry = True
@@ -38,18 +39,15 @@ class Grid:
     def get_vision(self, pos: Coord):
         vision = list()  # type: List[int]
         for adj in Coord.adjacency(True):
-            last = pos
-            while True:
-                last = last + adj
-                if last not in self.cells or self.cells[last].is_wall():
-                    vision += [1 / pos.manhattan_to(last), 0, 0]
-                    break
-                elif self.cells[last].has_body:
-                    vision += [0, 1 / pos.manhattan_to(last), 0]
-                    break
-                elif self.cells[last].has_cherry:
-                    vision += [0, 0, 2 / pos.manhattan_to(last)]
-                    break
+            last = pos + adj
+            if last not in self.cells or self.cells[last].is_wall():
+                vision += [0, 0]
+            elif self.cells[last].has_body:
+                vision += [0, 0]
+            elif self.cells[last].has_cherry:
+                vision += [0, 1]
+            else:
+                vision += [1, 0]
         return vision
 
     def build_walls(self, rand: Random):

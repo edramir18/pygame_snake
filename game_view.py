@@ -34,21 +34,26 @@ class GameZone:
         #     else:
         #         color = self.wall_color
         #     pg.draw.rect(self.canvas, color, (x, y, self.tile, self.tile), 0)
-        pos = game.cherry * self.tile + self.half
-        pg.draw.circle(self.canvas, self.cherry_color, pos.get(),
-                       self.cherry, 0)
         lst = [coord for coord, cell in game.grid.cells.items()
-               if cell.is_wall()]
+               if cell.is_wall() or cell.has_cherry]
         for coord in lst:
-            x, y = (coord * self.tile + self.m_wall).get()
-            pg.draw.rect(self.canvas, self.wall_color,
-                         (x, y, self.wall, self.wall), 0)
+            if game.grid.get(coord).has_cherry:
+                pos = coord * self.tile + self.half
+                pg.draw.circle(self.canvas, self.cherry_color, pos.get(),
+                               self.cherry, 0)
+            else:
+                x, y = (coord * self.tile + self.m_wall).get()
+                pg.draw.rect(self.canvas, self.wall_color,
+                             (x, y, self.wall, self.wall), 0)
         snake = game.snakes[game.current_id]  # type: Snake
         for pos in snake.body:
             body = pos * self.tile + self.m_snake
             x, y = body.get()
             rect = (x, y, self.snake, self.snake)
-            pg.draw.rect(self.canvas, self.snake_color, rect, 0)
+            if pos == snake.head:
+                pg.draw.rect(self.canvas, GameColor.BLUE.value, rect, 0)
+            else:
+                pg.draw.rect(self.canvas, self.snake_color, rect, 0)
 
 
 class GameView:

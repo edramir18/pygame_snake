@@ -23,7 +23,8 @@ class Game:
         self.random = np.random.default_rng(seed)
         self.grid = Grid(width, height)
         # self.grid.build_walls(self.random)
-        self.cherry = self.grid.get_next_cherry(self.random)
+        # for i in range(int(width * height * 0.05)):
+        self.grid.get_next_cherry(self.random)
         self.population = snakes
         self.snakes = dict()  # type: Dict[int, Snake]
         self.create_all_snakes()
@@ -64,19 +65,19 @@ class Game:
         self.grid.get(pos).has_body = True
 
     def eat_cherry(self):
-        self.grid.get(self.cherry).has_cherry = False
-        self.snakes[self.current_id].grow()
+        snake = self.snakes[self.current_id]
+        self.grid.get(snake.head).has_cherry = False
+        snake.grow()
         self.points += 1
-        self.cherry = self.grid.get_next_cherry(self.random)
-        self.grid.get(self.cherry).has_cherry = True
+        self.grid.get_next_cherry(self.random)
 
     def reset_game(self):
-        # self.random = np.random.default_rng(self.seed)
+        self.random = np.random.default_rng(self.seed)
         self.points = 0
         self.grid = Grid(self.grid.width, self.grid.height)
         # self.grid.build_walls(self.random)
-        self.cherry = self.grid.get_next_cherry(self.random)
-        self.grid.get(self.cherry).has_cherry = True
+        # for i in range(int(self.grid.width * self.grid.height * 0.05)):
+        self.grid.get_next_cherry(self.random)
 
     def next_generation(self):
         brains = [snake.brain for snake in self.snakes.values()]
