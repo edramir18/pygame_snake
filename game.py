@@ -40,8 +40,7 @@ class Game:
             if snake.fitness > self.best_fitness:
                 self.best_fitness = snake.fitness
             self.avg_fitness += snake.fitness
-            print(f'Snake {snake.brain.generation:3}:{snake.snk_id:<5}'
-                  f'Score: {snake.fitness:10.4f} '
+            print(f'{self.generation}> {snake}'
                   f'Best: {self.best_fitness:10.4f} '
                   f'AVG: {self.avg_fitness/(self.current_id + 1):10.4f}')
             self.reset_game()
