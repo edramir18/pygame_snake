@@ -28,6 +28,7 @@ class Snake:
         self.points = 0
         self.steps = 0
         self.fitness = 0
+        self.initial_pos = pos
 
     def move(self, delta: Coord, direction: 'Snake.Direction'):
         pos = self.head + delta
@@ -83,7 +84,7 @@ class Snake:
                 f'{self.points:3} points Life: {self.life:4} '
                 f'Score: {self.fitness:10.4f} ')
 
-    def save(self):
+    def save(self, neural=True):
         basename = f'data/{self.brain.generation}/snake_{self.snk_id}'
         jsonfile = f'{basename}.json'
         os.makedirs(os.path.dirname(jsonfile), exist_ok=True)
@@ -93,12 +94,25 @@ class Snake:
                 'fitness': int(self.fitness),
                 'steps': int(self.steps),
                 'points': int(self.points),
+                'initial_pos': self.initial_pos.get(),
                 'generation': self.brain.generation,
                 'seed': self.brain.seed,
             }
             json.dump(data, outfile)
-        try:
-            np.savez_compressed(f'{basename}_syn0.npz', self.brain.syn0)
-            np.savez_compressed(f'{basename}_syn1.npz', self.brain.syn1)
-        except FileNotFoundError as err:
-            print(err)
+            if neural:
+                np.savez(f'{basename}.npz',
+                         syn0=self.brain.syn0, syn1=self.brain.syn1)
+
+    @staticmethod
+    def load(generation, snk_id):
+        basename = f'data/{generation}/snake_{snk_id}'
+        jsonfile = f'{basename}.json'
+        with open(jsonfile) as outfile:
+            data = json.load(outfile)
+            brain = Brain(data['seed'], data['generation'])
+            x, y = data['initial_pos']
+            snake = Snake(data['snk_id'], Coord(x, y), brain)
+        with np.load(f'{basename}.npz') as data:
+            snake.brain.syn0 = data['syn0']
+            snake.brain.syn1 = data['syn1']
+        return snake

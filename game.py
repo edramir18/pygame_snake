@@ -12,7 +12,7 @@ from node import find_route
 
 class Game:
     def __init__(self, width: int, height: int, seed: int,
-                 snakes: int, mutation: float):
+                 snakes: int, mutation: float, create=True):
         self.points = 0
         self.current_id = 0
         self.generation = 0
@@ -27,7 +27,9 @@ class Game:
         self.grid.get_next_cherry(self.random)
         self.population = snakes
         self.snakes = dict()  # type: Dict[int, Snake]
-        self.create_all_snakes()
+        self.initial_pos = self.random.choice(self.grid.get_free_cells())
+        if create:
+            self.create_all_snakes()
 
     def run(self):
         snake = self.snakes[self.current_id]
@@ -57,12 +59,11 @@ class Game:
                 self.eat_cherry()
 
     def create_all_snakes(self):
-        pos = self.random.choice(self.grid.get_free_cells())
         for snk_id in range(self.population):
             brain = Brain(self.seed * self.population + snk_id, 0)
-            snake = Snake(snk_id, pos, brain)
+            snake = Snake(snk_id, self.initial_pos, brain)
             self.snakes[snk_id] = snake
-        self.grid.get(pos).has_body = True
+        self.grid.get(self.initial_pos).has_body = True
 
     def eat_cherry(self):
         snake = self.snakes[self.current_id]
@@ -79,21 +80,21 @@ class Game:
         # for i in range(int(self.grid.width * self.grid.height * 0.05)):
         self.grid.get_next_cherry(self.random)
 
-    def next_generation(self):
-        brains = [snake.brain for snake in self.snakes.values()]
+    def next_generation(self, create=True):
         self.generation += 1
-        generation = Evolution(brains, self.mutation,
-                               self.seed, self.generation)
-        brains = generation.evolve()
         self.current_id = 0
         self.avg_fitness = 0
         self.reset_game()
-        pos = self.random.choice(self.grid.get_free_cells())
-        self.snakes = dict()
-        for snk_id in range(self.population):
-            snake = Snake(snk_id, pos, brains[snk_id])
-            self.snakes[snk_id] = snake
-        self.grid.get(pos).has_body = True
+        if create:
+            brains = [snake.brain for snake in self.snakes.values()]
+            generation = Evolution(brains, self.mutation,
+                                   self.seed, self.generation)
+            brains = generation.evolve()
+            self.snakes = dict()
+            for snk_id in range(self.population):
+                snake = Snake(snk_id, self.initial_pos, brains[snk_id])
+                self.snakes[snk_id] = snake
+        self.grid.get(self.initial_pos).has_body = True
 
 
 
