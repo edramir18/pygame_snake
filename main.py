@@ -1,9 +1,12 @@
+import os
+import argparse
 import random
 import sys
 
 import pygame as pg
 from pygame.time import Clock
 
+from config import Config
 from game import Game
 from game_view import GameView
 from snake import Snake
@@ -142,14 +145,21 @@ def play():
 
 
 if __name__ == '__main__':
-    n_args = len(sys.argv)
-    if n_args == 1:
-        offline()
-    elif n_args == 2:
-        _, arg = sys.argv
-        if arg == '--play':
-            play()
-        elif arg == '--run':
-            run()
-        elif arg == '--replay':
-            replay()
+    parser = argparse.ArgumentParser(description='Run a simulation of snake'
+                                                 'game using GA')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-p', '--play', action="store_true",
+                       help='Run the simulation showing the'
+                            ' top snakes of each generation')
+    group.add_argument('-r', '--replay', action="store_true",
+                       help='Replay the last simulation showing the'
+                            ' top snakes of each generation')
+    args = parser.parse_args()
+    if args.play:
+        print("Play")
+    elif args.replay:
+        print("Replay")
+    else:
+        config = Config()
+        print(config)
+        print("Run")
