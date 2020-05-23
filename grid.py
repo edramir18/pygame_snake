@@ -1,6 +1,4 @@
-from random import Random
-from typing import Set, Dict, List
-
+from typing import Dict, List
 
 from cell import Cell
 from coord import Coord
