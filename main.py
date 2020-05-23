@@ -10,13 +10,13 @@ from snake import Snake
 
 population = 10000
 top = 20
-generations = 50
+generations = 200
 fps = 60
-mutation = 0.05
-width = 10
-height = 10
-seed = 1981
-tile = 40
+mutation = 0.10
+width = 15
+height = 15
+seed = 2040
+tile = 20
 
 
 def run():

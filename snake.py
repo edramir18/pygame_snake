@@ -18,7 +18,7 @@ class Snake:
         self.snk_id = snk_id
         self.body = set()  # type: Set[Coord]
         self.body.add(pos)
-        self.path = [pos, pos]
+        self.path = [pos, pos, pos]
         self.direction = Snake.Direction.UP
         self.directions = list()
         self.head = pos
@@ -54,8 +54,9 @@ class Snake:
         else:
             self.life -= 1
             self.steps += 1
-            action = self.brain.think(vision, self.get_direction())
-            return self.move(Coord.adjacency()[action], Snake.Direction(action))
+            # action = self.brain.think(vision, self.get_direction())
+            action = self.brain.think(self.encode_vision(vision))
+            return self.move(self.get_turn(action), Snake.Direction(action))
 
     def get_direction(self):
         if self.direction == Snake.Direction.UP:
@@ -66,6 +67,41 @@ class Snake:
             return [0, 0, 1, 0]
         if self.direction == Snake.Direction.LEFT:
             return [0, 0, 0, 1]
+
+    def encode_vision(self, vision: List[int]):
+        if self.direction == Snake.Direction.UP:
+            return [vision[5], vision[2], vision[3]]
+        if self.direction == Snake.Direction.RIGHT:
+            return [vision[2], vision[3], vision[4]]
+        if self.direction == Snake.Direction.DOWN:
+            return [vision[3], vision[4], vision[5]]
+        if self.direction == Snake.Direction.LEFT:
+            return [vision[4], vision[5], vision[2]]
+
+    def get_turn(self, action):
+        adj = Coord.adjacency()
+        if action == 0:
+            return adj[self.direction.value]
+        if self.direction == Snake.Direction.UP:
+            if action == 1:
+                return adj[Snake.Direction.LEFT.value]
+            else:
+                return adj[Snake.Direction.RIGHT.value]
+        elif self.direction == Snake.Direction.DOWN:
+            if action == 1:
+                return adj[Snake.Direction.RIGHT.value]
+            else:
+                return adj[Snake.Direction.LEFT.value]
+        elif self.direction == Snake.Direction.RIGHT:
+            if action == 1:
+                return adj[Snake.Direction.UP.value]
+            else:
+                return adj[Snake.Direction.DOWN.value]
+        elif self.direction == Snake.Direction.LEFT:
+            if action == 1:
+                return adj[Snake.Direction.DOWN.value]
+            else:
+                return adj[Snake.Direction.UP.value]
 
     def grow(self):
         self.life += 100

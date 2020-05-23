@@ -28,7 +28,7 @@ class Grid:
 
     def get_next_cherry(self, rand):
         free_cells = self.get_free_cells()
-        pos = rand.choice(free_cells)
+        pos = rand.choice(free_cells)  # type: Coord
         self.cells[pos].has_cherry = True
         return pos
 
@@ -36,21 +36,22 @@ class Grid:
         return [coord + adj for adj in Coord.adjacency()
                 if coord + adj in self.cells]
 
-    def get_vision(self, pos: Coord):
-        vision = list()  # type: List[int]
+    def get_vision(self, pos: Coord, cherry: Coord):
+        x, y = (cherry - pos).get()
+        vision = [x, y]  # type: List[int]
         for adj in Coord.adjacency(True):
             last = pos + adj
             if last not in self.cells or self.cells[last].is_wall():
-                vision += [0, 0]
+                vision.append(1)
             elif self.cells[last].has_body:
-                vision += [0, 0]
-            elif self.cells[last].has_cherry:
-                vision += [0, 1]
+                vision.append(1)
+            # elif self.cells[last].has_cherry:
+            #     vision += [0, 1]
             else:
-                vision += [1, 0]
+                vision.append(0)
         return vision
 
-    def build_walls(self, rand: Random):
+    def build_walls(self, rand):
         for cell in self.cells.values():
             if rand.random() < 0.15:
                 cell.celltype = Cell.CellType.WALL

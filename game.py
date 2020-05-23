@@ -22,9 +22,9 @@ class Game:
         self.seed = seed
         self.random = np.random.default_rng(seed)
         self.grid = Grid(width, height)
-        # self.grid.build_walls(self.random)
+        self.grid.build_walls(self.random)
         # for i in range(int(width * height * 0.05)):
-        self.grid.get_next_cherry(self.random)
+        self.cherry = self.grid.get_next_cherry(self.random)
         self.population = snakes
         self.snakes = dict()  # type: Dict[int, Snake]
         self.initial_pos = self.random.choice(self.grid.get_free_cells())
@@ -33,7 +33,7 @@ class Game:
 
     def run(self):
         snake = self.snakes[self.current_id]
-        vision = self.grid.get_vision(snake.head)
+        vision = self.grid.get_vision(snake.head, cherry=self.cherry)
         last = snake.run(vision)
         head = self.grid.get(snake.head)
         if head is None or head.is_wall() or head.has_body or snake.is_dead:
@@ -70,15 +70,15 @@ class Game:
         self.grid.get(snake.head).has_cherry = False
         snake.grow()
         self.points += 1
-        self.grid.get_next_cherry(self.random)
+        self.cherry = self.grid.get_next_cherry(self.random)
 
     def reset_game(self):
-        self.random = np.random.default_rng(self.seed)
+        # self.random = np.random.default_rng(self.seed)
         self.points = 0
         self.grid = Grid(self.grid.width, self.grid.height)
-        # self.grid.build_walls(self.random)
+        self.grid.build_walls(self.random)
         # for i in range(int(self.grid.width * self.grid.height * 0.05)):
-        self.grid.get_next_cherry(self.random)
+        self.cherry = self.grid.get_next_cherry(self.random)
 
     def next_generation(self, create=True):
         self.generation += 1
@@ -88,7 +88,7 @@ class Game:
         if create:
             brains = [snake.brain for snake in self.snakes.values()]
             generation = Evolution(brains, self.mutation,
-                                   self.seed, self.generation)
+                                   self.seed, self.generation, self.avg_fitness)
             brains = generation.evolve()
             self.snakes = dict()
             for snk_id in range(self.population):
