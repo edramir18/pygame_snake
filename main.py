@@ -49,16 +49,16 @@ def play(config: Config):
     pause = False
     clock = pg.time.Clock()  # type: Clock
     while game.is_running:
-        clock.tick(config.fps)
         pause = handle_user_input(game, pause)
         if not pause:
             if game.current_id < config.top:
+                clock.tick(config.fps)
                 game.run(save=True, save_ann=True)
+                if game.is_running:
+                    view.update(game)
+                    pg.display.flip()
             else:
                 game.run(save=True)
-            if game.is_running:
-                view.update(game)
-                pg.display.flip()
     pg.quit()
 
 
