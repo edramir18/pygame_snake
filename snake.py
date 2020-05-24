@@ -20,7 +20,7 @@ class Snake:
         self.body.add(pos)
         self.path = [pos, pos, pos]
         self.direction = Snake.Direction.UP
-        self.directions = list()
+        self.directions = [Snake.Direction.UP]
         self.head = pos
         self.brain = brain
         self.is_dead = False
@@ -54,19 +54,21 @@ class Snake:
         else:
             self.life -= 1
             self.steps += 1
-            # action = self.brain.think(vision, self.get_direction())
-            action = self.brain.think(self.encode_vision(vision))
+            action = self.brain.think(vision + self.get_directions())
             return self.move(self.get_turn(action), Snake.Direction(action))
 
-    def get_direction(self):
-        if self.direction == Snake.Direction.UP:
-            return [1, 0, 0, 0]
-        if self.direction == Snake.Direction.RIGHT:
-            return [0, 1, 0, 0]
-        if self.direction == Snake.Direction.DOWN:
-            return [0, 0, 1, 0]
-        if self.direction == Snake.Direction.LEFT:
-            return [0, 0, 0, 1]
+    def get_directions(self):
+        vectors = list()
+        for direct in [self.direction, self.directions[-1]]:
+            if direct == Snake.Direction.UP:
+                vectors += [1, 0, 0, 0]
+            if direct == Snake.Direction.RIGHT:
+                vectors += [0, 1, 0, 0]
+            if direct == Snake.Direction.DOWN:
+                vectors += [0, 0, 1, 0]
+            if direct == Snake.Direction.LEFT:
+                vectors += [0, 0, 0, 1]
+        return vectors
 
     def encode_vision(self, vision: List[int]):
         if self.direction == Snake.Direction.UP:
@@ -109,9 +111,9 @@ class Snake:
         self.path.append(self.path[-1])
 
     def calculate_fitness(self):
-        fitness = self.steps + (np.power(2, self.points) + 500 * self.points)
-        fitness -= 0.25 * np.power(self.steps, 1.3) * np.power(self.points, 1.2)
-        # fitness = self.steps * self.steps * np.power(2, self.points)
+        # fitness = self.steps + (np.power(2, self.points) + 500 * self.points)
+        # fitness -= 0.25 * np.power(self.steps, 1.3) * np.power(self.points, 1.2)
+        fitness = self.steps * self.steps * np.power(2, self.points)
         self.fitness = fitness
         self.brain.fitness = fitness
 

@@ -10,7 +10,7 @@ class Evolution:
         self.brains = brains
         self.population = len(brains)
         # self.elite = sum([1 for x in brains if x.fitness >= avg], 0)
-        self.elite = int(self.population * 0.2)
+        self.elite = int(self.population * 0.1)
         self.children = self.population - self.elite
         self.mutation_rate = mutation
         self.elites = list()  # type: List[Brain]
@@ -38,7 +38,7 @@ class Evolution:
         a = [True, False]
         l0 = self.brains[0].inputs
         l1 = self.brains[0].outputs
-        p = [0.5, 0.5]
+        p = [0.8, 0.2]
         for i in range(self.children):
             p1 = self.brains[self.parent_ids[i]]
             p2 = self.brains[self.parent_ids[i + 1]]
@@ -59,14 +59,18 @@ class Evolution:
         p = [self.mutation_rate, 1 - self.mutation_rate]
         for i in range(self.children):
             mut0 = self.random.choice(a, l0, p=p)
-            cro0 = self.random.uniform(-0.3, 0.3, l0)
+            cro0 = self.random.uniform(0, 1.0, l0)
+            # cro0 = self.random.uniform(-0.3, 0.3, l0)
             mut1 = self.random.choice(a, l1, p=p)
-            cro1 = self.random.uniform(-0.3, 0.3, l1)
+            # cro1 = self.random.uniform(-0.3, 0.3, l1)
+            cro1 = self.random.uniform(0, 1.0, l1)
             offspring = self.offsprings[i]
-            offspring.syn0 += np.where(mut0, cro0, np.zeros(l0))
-            offspring.syn1 += np.where(mut1, cro1, np.zeros(l1))
-            offspring.syn0 = np.clip(offspring.syn0, -1, 1)
-            offspring.syn1 = np.clip(offspring.syn1, -1, 1)
+            # offspring.syn0 += np.where(mut0, cro0, np.zeros(l0))
+            # offspring.syn1 += np.where(mut1, cro1, np.zeros(l1))
+            # offspring.syn0 = np.clip(offspring.syn0, -1, 1)
+            # offspring.syn1 = np.clip(offspring.syn1, -1, 1)
+            offspring.syn0 = np.where(mut0, cro0, offspring.syn0)
+            offspring.syn1 = np.where(mut1, cro1, offspring.syn1)
 
     def evolve(self):
         self.selection()

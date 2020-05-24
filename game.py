@@ -35,11 +35,9 @@ class Game:
         self.create_all_snakes()
 
     def run_snake(self, snake: Snake):
-        # TODO Agregar la direccion de movimiento para ajustar la vision
-        # TODO Remover parametro Cherry
-        vision = self.grid.get_vision(snake.head, self.cherry)
+        vision = self.grid.get_vision(snake.head)
         tail = snake.run(vision)  # type: Coord
-        head = self.grid.get(snake.head) # type: Cell
+        head = self.grid.get(snake.head)  # type: Cell
         if head is None or head.is_wall() or head.has_body or snake.is_dead:
             if not snake.is_dead:
                 snake.is_dead = True
@@ -62,6 +60,7 @@ class Game:
         if snake.is_dead:
             if save:
                 snake.save(save_ann)
+            self.avg_fitness += snake.fitness
             self.print_score_by_snake(snake)
             if snake.fitness > self.best_fitness:
                 self.best_fitness = snake.fitness
@@ -72,7 +71,7 @@ class Game:
                     self.is_running = False
                 else:
                     self.next_generation()
-                    self.reset_game()
+            self.reset_game()
 
     def create_all_snakes(self):
         if self.create:
@@ -95,13 +94,13 @@ class Game:
     def reset_game(self):
         self.random = np.random.default_rng(self.seed)
         self.points = 0
-        self.avg_fitness = 0
         self.grid = Grid(self.grid.width, self.grid.height)
         self.cherry = self.grid.get_next_cherry(self.random)
         self.grid.get(self.initial_pos).has_body = True
 
     def next_generation(self):
         self.current_id = 0
+        self.avg_fitness = 0
         if self.create:
             # TODO Cambiar todo la parte de Brain y evolucion
             brains = [snake.brain for snake in self.snakes.values()]
