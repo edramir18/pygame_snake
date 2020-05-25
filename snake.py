@@ -47,63 +47,64 @@ class Snake:
         self.directions.insert(0, direction)
         return last
 
-    def run(self, vision: List[float]):
+    def run(self, vision: List[int]):
         if self.life == 0:
             self.is_dead = True
             self.calculate_fitness()
         else:
             self.life -= 1
             self.steps += 1
-            action = self.brain.think(vision + self.get_directions())
-            return self.move(self.get_turn(action), Snake.Direction(action))
+            action = self.brain.think(vision + self.get_direction())
+            adj, direction = Coord.adjacency()[action], Snake.Direction(action)
+            return self.move(adj, direction)
 
-    def get_directions(self):
-        vectors = list()
-        for direct in [self.direction, self.directions[-1]]:
-            if direct == Snake.Direction.UP:
-                vectors += [1, 0, 0, 0]
-            if direct == Snake.Direction.RIGHT:
-                vectors += [0, 1, 0, 0]
-            if direct == Snake.Direction.DOWN:
-                vectors += [0, 0, 1, 0]
-            if direct == Snake.Direction.LEFT:
-                vectors += [0, 0, 0, 1]
-        return vectors
+    def get_direction(self):
+        if self.direction == Snake.Direction.UP:
+            return [0, 0]
+        elif self.direction == Snake.Direction.RIGHT:
+            return [0, 1]
+        elif self.direction == Snake.Direction.DOWN:
+            return [1, 0]
+        else:
+            return [1, 1]
 
     def encode_vision(self, vision: List[int]):
+        gene = self.brain.gene
+        r_vision = vision[:gene * 4]
         if self.direction == Snake.Direction.UP:
-            return [vision[5], vision[2], vision[3]]
+            return r_vision[-gene:] + r_vision[:gene * 2]
         if self.direction == Snake.Direction.RIGHT:
-            return [vision[2], vision[3], vision[4]]
+            return r_vision[:gene * 3]
         if self.direction == Snake.Direction.DOWN:
-            return [vision[3], vision[4], vision[5]]
+            return r_vision[gene:]
         if self.direction == Snake.Direction.LEFT:
-            return [vision[4], vision[5], vision[2]]
+            return (r_vision[-2 * gene:-gene] + r_vision[-gene:]
+                    + r_vision[:gene])
 
     def get_turn(self, action):
         adj = Coord.adjacency()
-        if action == 0:
-            return adj[self.direction.value]
+        if action == 0 or action == 3:
+            return adj[self.direction.value], self.direction
         if self.direction == Snake.Direction.UP:
-            if action == 1:
-                return adj[Snake.Direction.LEFT.value]
+            if action == 2:
+                return adj[Snake.Direction.LEFT.value], Snake.Direction.LEFT
             else:
-                return adj[Snake.Direction.RIGHT.value]
+                return adj[Snake.Direction.RIGHT.value], Snake.Direction.RIGHT
         elif self.direction == Snake.Direction.DOWN:
-            if action == 1:
-                return adj[Snake.Direction.RIGHT.value]
+            if action == 2:
+                return adj[Snake.Direction.RIGHT.value], Snake.Direction.RIGHT
             else:
-                return adj[Snake.Direction.LEFT.value]
+                return adj[Snake.Direction.LEFT.value], Snake.Direction.LEFT
         elif self.direction == Snake.Direction.RIGHT:
-            if action == 1:
-                return adj[Snake.Direction.UP.value]
+            if action == 2:
+                return adj[Snake.Direction.UP.value], Snake.Direction.UP
             else:
-                return adj[Snake.Direction.DOWN.value]
+                return adj[Snake.Direction.DOWN.value], Snake.Direction.DOWN
         elif self.direction == Snake.Direction.LEFT:
-            if action == 1:
-                return adj[Snake.Direction.DOWN.value]
+            if action == 2:
+                return adj[Snake.Direction.DOWN.value], Snake.Direction.DOWN
             else:
-                return adj[Snake.Direction.UP.value]
+                return adj[Snake.Direction.UP.value], Snake.Direction.UP
 
     def grow(self):
         self.life += 100
@@ -111,16 +112,17 @@ class Snake:
         self.path.append(self.path[-1])
 
     def calculate_fitness(self):
-        # fitness = self.steps + (np.power(2, self.points) + 500 * self.points)
+        # fitness = self.steps + np.power(2, self.points)
+        # fitness += 500 * np.power(self.points, 2.1)
         # fitness -= 0.25 * np.power(self.steps, 1.3) * np.power(self.points, 1.2)
         fitness = self.steps * self.steps * np.power(2, self.points)
         self.fitness = fitness
         self.brain.fitness = fitness
 
     def __str__(self):
-        return (f'Snake{self.brain.generation:4}:{self.snk_id:<5} '
+        return (f'Snake{self.brain.age:4}:{self.snk_id:<5} '
                 f'{self.points:3} points Life: {self.life:4} '
-                f'Score: {self.fitness:10.4f} ')
+                f'Score: {self.fitness:8.2f} ')
 
     def save(self, neural=True):
         basename = f'data/{self.brain.generation}/snake_{self.snk_id}'
@@ -133,13 +135,16 @@ class Snake:
                 'steps': int(self.steps),
                 'points': int(self.points),
                 'initial_pos': self.initial_pos.get(),
-                'generation': self.brain.generation,
-                'seed': self.brain.seed,
+                'generation': int(self.brain.generation),
+                'seed': int(self.brain.seed),
+                'gene': int(self.brain.gene),
+                'size': int(self.brain.size),
+                'age': int(self.brain.age)
             }
-            json.dump(data, outfile)
             if neural:
-                np.savez(f'{basename}.npz',
-                         syn0=self.brain.syn0, syn1=self.brain.syn1)
+                data['chromosome'] = ''.join(str(x)
+                                             for x in self.brain.chromosome)
+            json.dump(data, outfile)
 
     @staticmethod
     def load(generation, snk_id):
@@ -147,10 +152,10 @@ class Snake:
         jsonfile = f'{basename}.json'
         with open(jsonfile) as outfile:
             data = json.load(outfile)
-            brain = Brain(data['seed'], data['generation'])
+            brain = Brain(data['seed'], data['generation'],
+                          data['gene'], data['size'], data['age'],
+                          [int(x) for x in data['chromosome']])
             x, y = data['initial_pos']
             snake = Snake(data['snk_id'], Coord(x, y), brain)
-        with np.load(f'{basename}.npz') as data:
-            snake.brain.syn0 = data['syn0']
-            snake.brain.syn1 = data['syn1']
         return snake
+111

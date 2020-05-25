@@ -5,14 +5,14 @@ from brain import Brain
 
 
 class Evolution:
-    def __init__(self, brains: List[Brain], mutation: float,
-                 seed: int, generation: int, avg: float):
+    def __init__(self, brains: List[Brain], selection: float, crossover: float,
+                 mutation: float, seed: int, generation: int):
         self.brains = brains
         self.population = len(brains)
-        # self.elite = sum([1 for x in brains if x.fitness >= avg], 0)
-        self.elite = int(self.population * 0.1)
+        self.elite = int(self.population * selection)
         self.children = self.population - self.elite
         self.mutation_rate = mutation
+        self.crossover_rate = crossover
         self.elites = list()  # type: List[Brain]
         self.parent_ids = list()  # type: List[int]
         self.offsprings = list()  # type: List[Brain]
@@ -26,7 +26,7 @@ class Evolution:
         total = sum([b.fitness for b in self.brains], 0.0)
         dices = np.sort(self.random.uniform(size=self.children * 2))
         idx = 0
-        percent = self.brains[0].fitness / total
+        percent = self.brains[idx].fitness / total
         for roll in dices:
             while roll > percent:
                 idx += 1
@@ -36,41 +36,31 @@ class Evolution:
 
     def crossover(self):
         a = [True, False]
-        l0 = self.brains[0].inputs
-        l1 = self.brains[0].outputs
-        p = [0.8, 0.2]
+        p = [self.crossover_rate, 1 - self.crossover_rate]
+        size = self.brains[0].size // self.brains[0].gene
+        gene = self.brains[0].gene
         for i in range(self.children):
             p1 = self.brains[self.parent_ids[i]]
             p2 = self.brains[self.parent_ids[i + 1]]
-            # p1, p2 = (p1, p2) if p1.fitness > p2.fitness else (p2, p1)
-            cross0 = self.random.choice(a, l0, p=p)
-            cross1 = self.random.choice(a, l1, p=p)
-            offspring = Brain(self.seed * self.population + i, self.generation)
-            offspring.syn0 = np.where(cross0, p1.syn0, p2.syn0)
-            offspring.syn1 = np.where(cross1, p1.syn1, p2.syn1)
-            # offspring.syn0 = np.array(p1.syn0)
-            # offspring.syn1 = np.array(p2.syn1)
+            cross = list(self.random.choice(a, (size,), p=p))
+            seed = self.seed * self.population + i + self.elite
+            crom = list()
+            for k in range(size):
+                m, n = k * gene, k * gene + gene
+                crom += p1.chromosome[m:n] if cross[k] else p2.chromosome[m:n]
+            offspring = Brain(seed, self.generation, p1.gene, p1.size, 0, crom)
             self.offsprings.append(offspring)
 
     def mutation(self):
         a = [True, False]
-        l0 = self.brains[0].inputs
-        l1 = self.brains[0].outputs
+        size = (self.brains[0].size,)
         p = [self.mutation_rate, 1 - self.mutation_rate]
         for i in range(self.children):
-            mut0 = self.random.choice(a, l0, p=p)
-            cro0 = self.random.uniform(0, 1.0, l0)
-            # cro0 = self.random.uniform(-0.3, 0.3, l0)
-            mut1 = self.random.choice(a, l1, p=p)
-            # cro1 = self.random.uniform(-0.3, 0.3, l1)
-            cro1 = self.random.uniform(0, 1.0, l1)
+            mut = self.random.choice(a, size, p=p)
             offspring = self.offsprings[i]
-            # offspring.syn0 += np.where(mut0, cro0, np.zeros(l0))
-            # offspring.syn1 += np.where(mut1, cro1, np.zeros(l1))
-            # offspring.syn0 = np.clip(offspring.syn0, -1, 1)
-            # offspring.syn1 = np.clip(offspring.syn1, -1, 1)
-            offspring.syn0 = np.where(mut0, cro0, offspring.syn0)
-            offspring.syn1 = np.where(mut1, cro1, offspring.syn1)
+            crom = [1 if k == 0 else 0 for k in offspring.chromosome]
+            mut_crom = list(np.where(mut, crom, offspring.chromosome))
+            offspring.chromosome = mut_crom
 
     def evolve(self):
         self.selection()
@@ -78,4 +68,5 @@ class Evolution:
         self.mutation()
         for i in range(self.elite):
             self.elites[i].generation = self.generation
+            self.elites[i].age += 1
         return self.elites + self.offsprings

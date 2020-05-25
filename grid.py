@@ -34,21 +34,31 @@ class Grid:
         return [coord + adj for adj in Coord.adjacency()
                 if coord + adj in self.cells]
 
-    def get_vision(self, pos: Coord):
+    def get_vision(self, pos: Coord, cherry: Coord):
         vision = list()
+        x, y = (cherry - pos).get_unit_vector().get()
+        if x == 0:
+            vision += [0, 0, 0] if y == -1 else [1, 0, 0]
+        elif x == 1:
+            if y == 0:
+                vision += [0, 1, 0]
+            else:
+                vision += [0, 0, 1] if y == -1 else [0, 1, 1]
+        elif x == -1:
+            if y == 0:
+                vision += [1, 1, 0]
+            else:
+                vision += [1, 1, 1] if y == -1 else [1, 0, 1]
         for adj in Coord.adjacency(True):
             last = pos + adj
-            while True:
-                if last not in self.cells or self.cells[last].is_wall():
-                    vision += [pos.manhattan_to(last), 0, 0]
-                    break
-                elif self.cells[last].has_body:
-                    vision += [0, pos.manhattan_to(last), 0]
-                    break
-                elif self.cells[last].has_cherry:
-                    vision += [0, 0, pos.manhattan_to(last)]
-                    break
-                last = last + adj
+            if last not in self.cells or self.cells[last].is_wall():
+                vision.append(1)
+            elif self.cells[last].has_body:
+                vision.append(1)
+            elif self.cells[last].has_cherry:
+                vision.append(0)
+            else:
+                vision.append(0)
         return vision
 
     def build_walls(self, rand):

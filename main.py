@@ -90,13 +90,9 @@ if __name__ == '__main__':
         play(config=cfg)
     elif args.replay:
         cfg = Config.load()
-        cfg.fps = 60
         replay(cfg)
     else:
         cfg = Config()
-        cfg.population = 1000
-        cfg.mutation = 0.05
-        cfg.width = 5
-        cfg.height = 10
+        cfg.mutation = 0.01
         cfg.save()
         run(cfg)

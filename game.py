@@ -35,7 +35,7 @@ class Game:
         self.create_all_snakes()
 
     def run_snake(self, snake: Snake):
-        vision = self.grid.get_vision(snake.head)
+        vision = self.grid.get_vision(snake.head, self.cherry)
         tail = snake.run(vision)  # type: Coord
         head = self.grid.get(snake.head)  # type: Cell
         if head is None or head.is_wall() or head.has_body or snake.is_dead:
@@ -76,7 +76,8 @@ class Game:
     def create_all_snakes(self):
         if self.create:
             for snk_id in range(self.population):
-                brain = Brain(self.seed * self.population + snk_id, 0)
+                seed = self.seed * self.population + snk_id
+                brain = Brain(seed, 0, 2, 8192 * 2)
                 snake = Snake(snk_id, self.initial_pos, brain)
                 self.snakes[snk_id] = snake
             self.grid.get(self.initial_pos).has_body = True
@@ -102,10 +103,9 @@ class Game:
         self.current_id = 0
         self.avg_fitness = 0
         if self.create:
-            # TODO Cambiar todo la parte de Brain y evolucion
             brains = [snake.brain for snake in self.snakes.values()]
-            generation = Evolution(brains, self.mutation,
-                                   self.seed, self.generation, self.avg_fitness)
+            generation = Evolution(brains, self.selection, self.crossover,
+                                   self.mutation, self.seed, self.generation)
             brains = generation.evolve()
             self.snakes = dict()
             for snk_id in range(self.population):
