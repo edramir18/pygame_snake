@@ -86,13 +86,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.play:
         cfg = Config()
+        cfg.fps = 60
+        cfg.width = 30
+        cfg.height = 30
         cfg.save()
         play(config=cfg)
     elif args.replay:
         cfg = Config.load()
+        cfg.fps = 60
         replay(cfg)
     else:
         cfg = Config()
-        cfg.mutation = 0.01
+        cfg.mutation = 0.02
         cfg.save()
         run(cfg)

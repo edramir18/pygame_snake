@@ -35,7 +35,7 @@ class Game:
         self.create_all_snakes()
 
     def run_snake(self, snake: Snake):
-        vision = self.grid.get_vision(snake.head, self.cherry)
+        vision = self.grid.get_vision(snake.direction, snake.head, self.cherry)
         tail = snake.run(vision)  # type: Coord
         head = self.grid.get(snake.head)  # type: Cell
         if head is None or head.is_wall() or head.has_body or snake.is_dead:
@@ -51,8 +51,8 @@ class Game:
 
     def print_score_by_snake(self, snake: Snake):
         print(f'{self.generation}> {snake}'
-              f'Best: {self.best_fitness:10.4f} '
-              f'AVG: {self.avg_fitness / (self.current_id + 1):10.4f}')
+              f'Best: {self.best_fitness:12.2f} '
+              f'AVG: {self.avg_fitness / (self.current_id + 1):12.2f}')
 
     def run(self, save=False, save_ann=False):
         snake = self.snakes[self.current_id]
@@ -77,7 +77,7 @@ class Game:
         if self.create:
             for snk_id in range(self.population):
                 seed = self.seed * self.population + snk_id
-                brain = Brain(seed, 0, 2, 8192 * 2)
+                brain = Brain(seed, 0, 2, (2 ** 6) * 2)
                 snake = Snake(snk_id, self.initial_pos, brain)
                 self.snakes[snk_id] = snake
             self.grid.get(self.initial_pos).has_body = True
@@ -93,7 +93,7 @@ class Game:
         self.cherry = self.grid.get_next_cherry(self.random)
 
     def reset_game(self):
-        self.random = np.random.default_rng(self.seed)
+        # self.random = np.random.default_rng(self.seed)
         self.points = 0
         self.grid = Grid(self.grid.width, self.grid.height)
         self.cherry = self.grid.get_next_cherry(self.random)

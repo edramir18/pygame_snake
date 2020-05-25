@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from cell import Cell
 from coord import Coord
+from snake import Snake
 
 
 class Grid:
@@ -34,9 +35,14 @@ class Grid:
         return [coord + adj for adj in Coord.adjacency()
                 if coord + adj in self.cells]
 
-    def get_vision(self, pos: Coord, cherry: Coord):
+    def get_vision(self, direction: Snake.Direction, pos: Coord, cherry: Coord):
         vision = list()
-        x, y = (cherry - pos).get_unit_vector().get()
+        r_pos = Coord(pos.x, pos.y)
+        adj = [(-1, 0), (0, -1), (1, 0)]
+        for i in range(direction.value):
+            adj = [(-y, x) for x, y in adj]
+            r_pos.x, r_pos.y = -r_pos.y, r_pos.x
+        x, y = (cherry - r_pos).get_unit_vector().get()
         if x == 0:
             vision += [0, 0, 0] if y == -1 else [1, 0, 0]
         elif x == 1:
@@ -49,8 +55,8 @@ class Grid:
                 vision += [1, 1, 0]
             else:
                 vision += [1, 1, 1] if y == -1 else [1, 0, 1]
-        for adj in Coord.adjacency(True):
-            last = pos + adj
+        for vector in adj:
+            last = pos + vector
             if last not in self.cells or self.cells[last].is_wall():
                 vision.append(1)
             elif self.cells[last].has_body:

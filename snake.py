@@ -24,7 +24,7 @@ class Snake:
         self.head = pos
         self.brain = brain
         self.is_dead = False
-        self.life = 200
+        self.life = 100
         self.points = 0
         self.steps = 0
         self.fitness = 0
@@ -54,8 +54,10 @@ class Snake:
         else:
             self.life -= 1
             self.steps += 1
-            action = self.brain.think(vision + self.get_direction())
-            adj, direction = Coord.adjacency()[action], Snake.Direction(action)
+            action = self.brain.think(vision)
+            # adj, direction = Coord.adjacency()[action], Snake.Direction(action)
+            adj, direction = self.get_turn(action)
+            # print(self.direction, self.head, vision, action, adj, direction)
             return self.move(adj, direction)
 
     def get_direction(self):
@@ -112,17 +114,17 @@ class Snake:
         self.path.append(self.path[-1])
 
     def calculate_fitness(self):
-        # fitness = self.steps + np.power(2, self.points)
-        # fitness += 500 * np.power(self.points, 2.1)
-        # fitness -= 0.25 * np.power(self.steps, 1.3) * np.power(self.points, 1.2)
-        fitness = self.steps * self.steps * np.power(2, self.points)
+        fitness = self.steps + np.power(2, self.points)
+        fitness += 500 * np.power(self.points, 2.1)
+        fitness -= 0.25 * np.power(self.steps, 1.3) * np.power(self.points, 1.2)
+        # fitness = self.steps * self.steps * np.power(2, self.points)
         self.fitness = fitness
         self.brain.fitness = fitness
 
     def __str__(self):
         return (f'Snake{self.brain.age:4}:{self.snk_id:<5} '
                 f'{self.points:3} points Life: {self.life:4} '
-                f'Score: {self.fitness:8.2f} ')
+                f'Score: {self.fitness:12.2f} ')
 
     def save(self, neural=True):
         basename = f'data/{self.brain.generation}/snake_{self.snk_id}'
@@ -158,4 +160,3 @@ class Snake:
             x, y = data['initial_pos']
             snake = Snake(data['snk_id'], Coord(x, y), brain)
         return snake
-111
